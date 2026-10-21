@@ -1,4 +1,4 @@
-import 'package:fono_app/models/exercise_model.dart';
+import 'package:voxify/models/exercise_model.dart';
 
 class MockLessonsData {
   static final LessonModel aulaVogais = LessonModel.fromMap({

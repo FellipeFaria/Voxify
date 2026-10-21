@@ -1,15 +1,15 @@
 import 'package:device_preview_plus/device_preview_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:fono_app/core/app_routes.dart';
-import 'package:fono_app/main_screen.dart';
-import 'package:fono_app/views/auth/forgotpassword_view.dart';
-import 'package:fono_app/views/auth/login_view.dart';
-import 'package:fono_app/views/auth/signin_view.dart';
-import 'package:fono_app/views/profile/account_info_view.dart';
+import 'package:voxify/core/app_routes.dart';
+import 'package:voxify/main_screen.dart';
+import 'package:voxify/views/auth/forgotpassword_view.dart';
+import 'package:voxify/views/auth/login_view.dart';
+import 'package:voxify/views/auth/signin_view.dart';
+import 'package:voxify/views/profile/account_info_view.dart';
 
 void main() {
-  // runApp(const MainApp());
-  runApp(DevicePreview(builder: ((context) => const MainApp())));
+  runApp(const MainApp());
+  // runApp(DevicePreview(builder: ((context) => const MainApp())));
 }
 
 class MainApp extends StatelessWidget {
@@ -18,7 +18,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FonoApp',
+      title: 'Voxify',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

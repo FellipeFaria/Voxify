@@ -13,7 +13,7 @@ class AboutPageView extends StatelessWidget {
         centerTitle: true,
         automaticallyImplyLeading: false,
         title: const Text(
-          'Sobre o FonoApp',
+          'Sobre o Voxify',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
@@ -43,7 +43,7 @@ class AboutPageView extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   const Text(
-                    'FonoApp',
+                    'Voxify',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w900,
@@ -78,10 +78,10 @@ class AboutPageView extends StatelessWidget {
             const SizedBox(height: 28),
 
             _buildInfoCard(
-              title: 'Objetivo do FonoApp',
+              title: 'Objetivo do Voxify',
               icon: Icons.track_changes_rounded,
               child: const Text(
-                'O FonoApp é uma plataforma móvel gamificada criada para auxiliar e acompanhar pacientes em exercícios fonoaudiológicos extraclínicos.'
+                'O Voxify é uma plataforma móvel gamificada criada para auxiliar e acompanhar pacientes em exercícios fonoaudiológicos extraclínicos.'
                 ' Através de dinâmicas interativas no estilo "Listen and Repeat" (Escuta e Fala) e reconhecimento vocal, o aplicativo busca aumentar o engajamento e a constância nos treinos diários de articulação e pronúncia de fonemas.',
                 style: TextStyle(
                   fontSize: 14,
@@ -146,7 +146,7 @@ class AboutPageView extends StatelessWidget {
 
             const Center(
               child: Text(
-                '© 2026 FonoApp - Todos os direitos reservados',
+                '© 2026 Voxify - Todos os direitos reservados',
                 style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ),

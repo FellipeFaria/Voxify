@@ -40,7 +40,7 @@ class ForgotPasswordView extends StatelessWidget {
               const SizedBox(height: 16),
 
               const Text(
-                'Não se preocupe! Digite o e-mail associado à sua conta FonoApp e enviaremos um link seguro para você redefinir sua senha.',
+                'Não se preocupe! Digite o e-mail associado à sua conta Voxify e enviaremos um link seguro para você redefinir sua senha.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
               ),

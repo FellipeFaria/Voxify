@@ -1,3 +1,3 @@
-# fono_app
+# voxify
 
 A new Flutter project.

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fono_app/views/about/about.dart';
-import 'package:fono_app/views/home/home.dart';
-import 'package:fono_app/views/profile/profile.dart';
+import 'package:voxify/views/about/about.dart';
+import 'package:voxify/views/home/home.dart';
+import 'package:voxify/views/profile/profile.dart';
 
 class MainScreenView extends StatefulWidget {
   const MainScreenView({super.key});

@@ -1,4 +1,4 @@
-package com.example.fono_app
+package com.example.voxify
 
 import io.flutter.embedding.android.FlutterActivity
 

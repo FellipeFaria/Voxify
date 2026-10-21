@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fono_app/core/app_routes.dart';
+import 'package:voxify/core/app_routes.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -48,7 +48,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'FonoApp',
+                    'Voxify',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 36,

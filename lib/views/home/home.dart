@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fono_app/data/mock/mock_lessons_data.dart';
-import 'package:fono_app/models/exercise_model.dart';
-import 'package:fono_app/views/exercises/exercise_engine_view.dart';
+import 'package:voxify/data/mock/mock_lessons_data.dart';
+import 'package:voxify/models/exercise_model.dart';
+import 'package:voxify/views/exercises/exercise_engine_view.dart';
 
 class HomePageView extends StatefulWidget {
   const HomePageView({super.key});

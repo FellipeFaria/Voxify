@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fono_app/models/exercise_model.dart';
-import 'package:fono_app/views/exercises/templates/audio_speak_exercise_view.dart';
-import 'package:fono_app/views/exercises/templates/multiple_choice_exercise_view.dart';
+import 'package:voxify/models/exercise_model.dart';
+import 'package:voxify/views/exercises/templates/audio_speak_exercise_view.dart';
+import 'package:voxify/views/exercises/templates/multiple_choice_exercise_view.dart';
 
 class ExerciseEngineView extends StatefulWidget {
   final LessonModel lesson;

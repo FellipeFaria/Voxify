@@ -1,6 +1,6 @@
 {
-    "name": "fono_app",
-    "short_name": "fono_app",
+    "name": "voxify",
+    "short_name": "voxify",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

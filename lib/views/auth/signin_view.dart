@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fono_app/core/app_routes.dart';
+import 'package:voxify/core/app_routes.dart';
 
 class SigninView extends StatefulWidget {
   const SigninView({super.key});
@@ -76,7 +76,7 @@ class _SigninViewState extends State<SigninView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Text(
-                  'Junte-se ao FonoApp!',
+                  'Junte-se ao Voxify!',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,

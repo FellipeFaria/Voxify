@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fono_app/core/app_routes.dart';
+import 'package:voxify/core/app_routes.dart';
 
 class ProfilePageView extends StatelessWidget {
   const ProfilePageView({super.key});
@@ -118,7 +118,7 @@ class ProfilePageView extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Estudante de FonoQuest • Nível 2',
+                    'Estudante de Voxify • Nível 2',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade600,
