@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "373017782590",
+    "project_id": "voxify-tcc",
+    "storage_bucket": "voxify-tcc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:373017782590:android:1fec5748404de0e3d1a46f",
+        "android_client_info": {
+          "package_name": "com.example.voxify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB60oio7j2sHsLUWRgDR5TJLeXFq9-6D5w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:voxify/controllers/auth_controller.dart';
 import 'package:voxify/core/app_routes.dart';
 
 class SigninView extends StatefulWidget {
@@ -31,24 +33,45 @@ class _SigninViewState extends State<SigninView> {
     super.dispose();
   }
 
-  void _sigin() {
+  void _singUp() async {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Conta criada com sucesso! Faça login para continuar.'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pushNamedAndRemoveUntil(
+      final authController = Provider.of<AuthController>(
         context,
-        AppRoutes.login,
-        (route) => false,
+        listen: false,
       );
+
+      bool success = await authController.singUp(
+        name: _nameController.text,
+        email: _emailController.text,
+        phone: _phoneController.text,
+        password: _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Conta criada com sucesso! Bem-vindo ao Voxify.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pushReplacementNamed(context, AppRoutes.main);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authController.errorMessage ?? 'Erro no cadastro'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authController = Provider.of<AuthController>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -93,6 +116,7 @@ class _SigninViewState extends State<SigninView> {
                 TextFormField(
                   controller: _nameController,
                   keyboardType: TextInputType.name,
+                  enabled: !authController.isLoading,
                   textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(
                     labelText: 'Nome Completo',
@@ -117,6 +141,7 @@ class _SigninViewState extends State<SigninView> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  enabled: !authController.isLoading,
                   decoration: const InputDecoration(
                     labelText: 'E-mail',
                     prefixIcon: Icon(Icons.email_outlined),
@@ -139,6 +164,7 @@ class _SigninViewState extends State<SigninView> {
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  enabled: !authController.isLoading,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                     _TelefoneInputFormatter(),
@@ -163,6 +189,7 @@ class _SigninViewState extends State<SigninView> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _hidePassword,
+                  enabled: !authController.isLoading,
                   decoration: InputDecoration(
                     labelText: 'Senha',
                     prefixIcon: const Icon(Icons.lock_outline),
@@ -192,6 +219,7 @@ class _SigninViewState extends State<SigninView> {
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _hidePasswordConfirm,
+                  enabled: !authController.isLoading,
                   decoration: InputDecoration(
                     labelText: 'Confirmar Senha',
                     prefixIcon: const Icon(Icons.lock_outline),
@@ -224,22 +252,33 @@ class _SigninViewState extends State<SigninView> {
                   height: 60,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: Colors.orange,
+                      backgroundColor: Colors.deepPurple,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    onPressed: _sigin,
-                    child: const Text(
-                      'FINALIZAR CADASTRO',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    onPressed: authController.isLoading
+                        ? null
+                        : () => _singUp(),
+                    child: authController.isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : const Text(
+                            'CADASTRAR',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
 
                 Row(
