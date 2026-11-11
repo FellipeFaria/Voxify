@@ -174,4 +174,37 @@ class AuthController extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> sendPasswordResetEmail(String email) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim());
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _isLoading = false;
+      switch (e.code) {
+        case 'user-not-found':
+          _errorMessage = 'Não existe conta cadastrada com este e-mail.';
+          break;
+        case 'invalid-email':
+          _errorMessage = 'O formato do e-mail é inválido.';
+          break;
+        default:
+          _errorMessage = 'Erro ao enviar e-mail: ${e.message}';
+      }
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';
+      notifyListeners();
+      return false;
+    }
+  }
 }
