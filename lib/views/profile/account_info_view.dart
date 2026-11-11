@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:voxify/controllers/auth_controller.dart';
 
 class AccountInfoView extends StatefulWidget {
   const AccountInfoView({super.key});
@@ -10,13 +12,6 @@ class AccountInfoView extends StatefulWidget {
 class _AccountInfoViewState extends State<AccountInfoView> {
   bool _isEditing = false;
 
-  String _name = 'John Doe';
-  String _email = 'johndoe@gmail.com';
-  String _phone = '16998887766';
-  final String _password = '***********';
-  final int _accountLevel = 2;
-  final int _totalXp = 1250;
-
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
@@ -25,7 +20,14 @@ class _AccountInfoViewState extends State<AccountInfoView> {
   @override
   void initState() {
     super.initState();
-    _initControllers();
+
+    final authController = Provider.of<AuthController>(context, listen: false);
+    final user = authController.userData ?? {};
+
+    _nameController = TextEditingController(text: user['name'] ?? '');
+    _emailController = TextEditingController(text: user['email'] ?? '');
+    _phoneController = TextEditingController(text: user['phone'] ?? '');
+    _passwordController = TextEditingController(text: '************');
   }
 
   @override
@@ -37,38 +39,65 @@ class _AccountInfoViewState extends State<AccountInfoView> {
     super.dispose();
   }
 
-  void _initControllers() {
-    _nameController = TextEditingController(text: _name);
-    _emailController = TextEditingController(text: _email);
-    _phoneController = TextEditingController(text: _phone);
-    _passwordController = TextEditingController(text: _password);
-  }
+  Future<void> _saveChanges() async {
+    final authController = Provider.of<AuthController>(context, listen: false);
 
-  void _saveChanges() {
-    setState(() {
-      _name = _nameController.text;
-      _email = _emailController.text;
-      _phone = _phoneController.text;
-      _isEditing = false;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Informações atualizadas com sucesso!'),
-        backgroundColor: Colors.green,
-      ),
+    bool success = await authController.updateUserProfile(
+      name: _nameController.text.trim(),
+      phone: _phoneController.text.trim(),
     );
+
+    if (!mounted) return;
+
+    if (success) {
+      setState(() {
+        _isEditing = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Informações atualizadas com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao atualizar informações. Tente novamente.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _cancelChanges() {
+    final authController = Provider.of<AuthController>(context, listen: false);
+    final user = authController.userData ?? {};
+
     setState(() {
-      _initControllers();
+      _nameController.text = user['name'] ?? '';
+      _phoneController.text = user['phone'] ?? '';
       _isEditing = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final authController = Provider.of<AuthController>(context);
+    final user = authController.userData;
+
+    if (user == null) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.deepPurple),
+        ),
+      );
+    }
+
+    final int level = user['level'] ?? 1;
+    final int xp = user['xp'] ?? 0;
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -123,7 +152,7 @@ class _AccountInfoViewState extends State<AccountInfoView> {
                             style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                           Text(
-                            'Nível $_accountLevel',
+                            'Nível $level',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -155,7 +184,7 @@ class _AccountInfoViewState extends State<AccountInfoView> {
                             style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                           Text(
-                            '$_totalXp XP',
+                            '$xp XP',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,

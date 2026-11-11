@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:voxify/controllers/auth_controller.dart';
 import 'package:voxify/data/mock/mock_lessons_data.dart';
 import 'package:voxify/models/exercise_model.dart';
 import 'package:voxify/views/exercises/exercise_engine_view.dart';
@@ -11,11 +13,6 @@ class HomePageView extends StatefulWidget {
 }
 
 class _HomePageViewState extends State<HomePageView> {
-  // dados mock para teste
-  final int _nivelAtual = 2;
-  final int _diasSequencia = 4;
-  final int _vidasRestantes = 5;
-
   final List<Map<String, dynamic>> _exercises = [
     {
       'id': '1',
@@ -177,6 +174,21 @@ class _HomePageViewState extends State<HomePageView> {
 
   @override
   Widget build(BuildContext context) {
+    final authController = Provider.of<AuthController>(context);
+    final user = authController.userData;
+
+    if (user == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.deepPurple),
+        ),
+      );
+    }
+
+    int level = user['level'] ?? 1;
+    int streak = user['streak'] ?? 0;
+    int health = user['health'] ?? 5;
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
 
@@ -211,7 +223,7 @@ class _HomePageViewState extends State<HomePageView> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Nível $_nivelAtual',
+                      'Nível $level',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -239,7 +251,7 @@ class _HomePageViewState extends State<HomePageView> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '$_diasSequencia',
+                      '$streak',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -268,7 +280,7 @@ class _HomePageViewState extends State<HomePageView> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '$_vidasRestantes',
+                      '$health',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

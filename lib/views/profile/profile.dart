@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:voxify/controllers/auth_controller.dart';
 import 'package:voxify/core/app_routes.dart';
 
 class ProfilePageView extends StatelessWidget {
@@ -6,6 +8,23 @@ class ProfilePageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authController = Provider.of<AuthController>(context);
+    final user = authController.userData;
+
+    if (user == null) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.deepPurple),
+        ),
+      );
+    }
+
+    String name = user['name'] ?? 'Usuário';
+    int level = user['level'] ?? 1;
+    int xp = user['xp'] ?? 0;
+    int streak = user['streak'] ?? 0;
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -108,8 +127,8 @@ class ProfilePageView extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'John Doe',
+                  Text(
+                    name,
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
@@ -118,7 +137,7 @@ class ProfilePageView extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Estudante de Voxify • Nível 2',
+                    'Estudante de Voxify • Nível $level',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade600,
@@ -136,7 +155,7 @@ class ProfilePageView extends StatelessWidget {
                   child: _buildStatCard(
                     icon: Icons.local_fire_department_rounded,
                     color: Colors.orange,
-                    valor: '4 Dias',
+                    valor: '$streak Dias',
                     label: 'Ofensiva',
                   ),
                 ),
@@ -145,7 +164,7 @@ class ProfilePageView extends StatelessWidget {
                   child: _buildStatCard(
                     icon: Icons.stars_rounded,
                     color: Colors.amber.shade700,
-                    valor: '1250 XP',
+                    valor: '$xp XP',
                     label: 'Pontuação',
                   ),
                 ),
@@ -210,7 +229,7 @@ class ProfilePageView extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Deseja sair da conta?'),
         content: const Text(
-          'Você precisará se autenticar novamente para acessar suas aulas.',
+          'Você precisara se autenticar novamente para acessar suas aulas.',
         ),
         actions: [
           TextButton(
@@ -219,8 +238,18 @@ class ProfilePageView extends StatelessWidget {
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
+
+              final authController = Provider.of<AuthController>(
+                context,
+                listen: false,
+              );
+
+              await authController.signOut();
+
+              if (!context.mounted) return;
+
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 AppRoutes.login,

@@ -33,14 +33,14 @@ class _SigninViewState extends State<SigninView> {
     super.dispose();
   }
 
-  void _singUp() async {
+  void _signUp() async {
     if (_formKey.currentState!.validate()) {
       final authController = Provider.of<AuthController>(
         context,
         listen: false,
       );
 
-      bool success = await authController.singUp(
+      bool success = await authController.signUp(
         name: _nameController.text,
         email: _emailController.text,
         phone: _phoneController.text,
@@ -259,7 +259,7 @@ class _SigninViewState extends State<SigninView> {
                     ),
                     onPressed: authController.isLoading
                         ? null
-                        : () => _singUp(),
+                        : () => _signUp(),
                     child: authController.isLoading
                         ? const SizedBox(
                             width: 24,

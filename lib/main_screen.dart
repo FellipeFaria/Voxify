@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:voxify/controllers/auth_controller.dart';
 import 'package:voxify/views/about/about.dart';
 import 'package:voxify/views/home/home.dart';
 import 'package:voxify/views/profile/profile.dart';
@@ -11,6 +13,15 @@ class MainScreenView extends StatefulWidget {
 }
 
 class _MainScreenViewState extends State<MainScreenView> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AuthController>(context, listen: false).loadUserData();
+    });
+  }
+
   int _currentIndex = 1;
 
   final List<Widget> _pages = const [

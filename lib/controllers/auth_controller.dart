@@ -12,6 +12,9 @@ class AuthController extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  Map<String, dynamic>? _userData;
+  Map<String, dynamic>? get userData => _userData;
+
   Future<bool> signIn(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;
@@ -58,7 +61,7 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<bool> singUp({
+  Future<bool> signUp({
     required String name,
     required String email,
     required String phone,
@@ -82,6 +85,10 @@ class AuthController extends ChangeNotifier {
         'name': name.trim(),
         'email': email.trim(),
         'phone': phone.trim(),
+        'level': 1,
+        'xp': 0,
+        'streak': 0,
+        'health': 5,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -108,10 +115,62 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       return false;
     } catch (e) {
-      print("ERRO DETALHADO: $e");
       _isLoading = false;
       _errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';
       notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> signOut() async {
+    try {
+      await _auth.signOut();
+
+      _userData = null;
+
+      notifyListeners();
+    } catch (e) {
+      print('Erro ao fazer logoff: $e');
+    }
+  }
+
+  Future<void> loadUserData() async {
+    User? currentUser = _auth.currentUser;
+
+    if (currentUser != null) {
+      DocumentSnapshot doc = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+      if (doc.exists) {
+        _userData = doc.data() as Map<String, dynamic>;
+        notifyListeners();
+      }
+    }
+  }
+
+  Future<bool> updateUserProfile({
+    required String name,
+    required String phone,
+  }) async {
+    try {
+      User? currentUser = _auth.currentUser;
+      if (currentUser == null) return false;
+
+      await _firestore.collection('users').doc(currentUser.uid).update({
+        'name': name,
+        'phone': phone,
+      });
+
+      if (_userData != null) {
+        _userData!['name'] = name;
+        _userData!['phone'] = phone;
+        notifyListeners();
+      }
+
+      return true;
+    } catch (e) {
+      print('Erro ao atualizar perfil: $e');
       return false;
     }
   }
