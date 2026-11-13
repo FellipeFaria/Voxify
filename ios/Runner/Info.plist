@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>O Voxify usa o microfone para ouvir sua prática de pronúncia.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>O Voxify usa reconhecimento de fala para validar os exercícios de pronúncia.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

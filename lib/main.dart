@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:voxify/controllers/auth_controller.dart';
+import 'package:voxify/controllers/lesson_provider.dart';
 import 'package:voxify/core/app_routes.dart';
 import 'package:voxify/firebase_options.dart';
 import 'package:voxify/main_screen.dart';
@@ -25,7 +26,10 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthController())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthController()),
+        ChangeNotifierProvider(create: (_) => LessonProvider()),
+      ],
       child: MaterialApp(
         title: 'Voxify',
         debugShowCheckedModeBanner: false,

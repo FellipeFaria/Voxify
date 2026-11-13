@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:voxify/controllers/auth_controller.dart';
-import 'package:voxify/data/mock/mock_lessons_data.dart';
+import 'package:voxify/controllers/lesson_provider.dart';
 import 'package:voxify/models/exercise_model.dart';
+import 'package:voxify/models/unit_model.dart';
 import 'package:voxify/views/exercises/exercise_engine_view.dart';
 
 class HomePageView extends StatefulWidget {
@@ -13,61 +14,18 @@ class HomePageView extends StatefulWidget {
 }
 
 class _HomePageViewState extends State<HomePageView> {
-  final List<Map<String, dynamic>> _exercises = [
-    {
-      'id': '1',
-      'titulo': 'Vogais e Sons Básicos',
-      'descricao':
-          'Aqueça sua articulação praticando a pronúncia clara das vogais e emissão de sons abertos.',
-      'bloqueado': false,
-      'concluido': true,
-      'posicao': 0,
-    },
-    {
-      'id': '2',
-      'titulo': 'Fonema /R/ Brando',
-      'descricao':
-          'Treine a vibração da ponta da língua em palavras como "Cora", "Maro" e "Arara".',
-      'bloqueado': false,
-      'concluido': false,
-      'posicao': 1,
-    },
-    {
-      'id': '3',
-      'titulo': 'Fonema /L/ Intervocálico',
-      'descricao':
-          'Pratique o posicionamento correto do topo da língua no céu da boca.',
-      'bloqueado': true,
-      'concluido': false,
-      'posicao': 0,
-    },
-    {
-      'id': '4',
-      'titulo': 'Encontros Consonantais /PR/ e /TR/',
-      'descricao':
-          'Exercícios de agilidade para coordenação de sílabas complexas.',
-      'bloqueado': true,
-      'concluido': false,
-      'posicao': -1,
-    },
-    {
-      'id': '5',
-      'titulo': 'Desafio: Trava-Línguas',
-      'descricao':
-          'Teste sua fluência e clareza pronunciando frases rápidas sem hesitação.',
-      'bloqueado': true,
-      'concluido': false,
-      'posicao': 0,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<LessonProvider>().start();
+    });
+  }
 
-  void _showExerciseDialog(
-    BuildContext context,
-    Map<String, dynamic> exercise,
-  ) {
+  void _showExerciseDialog(BuildContext context, LessonModel lesson) {
     showDialog(
       context: context,
-      builder: (BuildContext ctx) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
@@ -82,7 +40,7 @@ class _HomePageViewState extends State<HomePageView> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  exercise['titulo'],
+                  lesson.tituloAula,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -96,7 +54,7 @@ class _HomePageViewState extends State<HomePageView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                exercise['titulo'],
+                lesson.description,
                 style: const TextStyle(
                   fontSize: 15,
                   color: Colors.black87,
@@ -113,7 +71,7 @@ class _HomePageViewState extends State<HomePageView> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Recompensa: +50 XP',
+                    'Recompensa: +${lesson.xpReward} XP',
                     style: TextStyle(
                       color: Colors.orange.shade800,
                       fontWeight: FontWeight.bold,
@@ -137,22 +95,11 @@ class _HomePageViewState extends State<HomePageView> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.pop(ctx);
-
-                  LessonModel lessonSelecionada;
-                  if (exercise['id'] == '1') {
-                    lessonSelecionada = MockLessonsData.aulaVogais;
-                  } else if (exercise['id'] == '2') {
-                    lessonSelecionada = MockLessonsData.aulaRBrando;
-                  } else {
-                    return;
-                  }
-
+                  Navigator.pop(dialogContext);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          ExerciseEngineView(lesson: lessonSelecionada),
+                      builder: (_) => ExerciseEngineView(lesson: lesson),
                     ),
                   );
                 },
@@ -174,7 +121,8 @@ class _HomePageViewState extends State<HomePageView> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
+    final authController = context.watch<AuthController>();
+    final lessonProvider = context.watch<LessonProvider>();
     final user = authController.userData;
 
     if (user == null) {
@@ -185,13 +133,20 @@ class _HomePageViewState extends State<HomePageView> {
       );
     }
 
-    int level = user['level'] ?? 1;
-    int streak = user['streak'] ?? 0;
-    int health = user['health'] ?? 5;
+    final level = (user['level'] as num?)?.toInt() ?? 1;
+    final streak = (user['streak'] as num?)?.toInt() ?? 0;
+    final health = (user['health'] as num?)?.toInt() ?? 5;
+    final lessons = <LessonModel>[];
+    final lessonUnits = <UnitModel>[];
+    for (final unit in lessonProvider.units) {
+      for (final lesson in unit.lessons) {
+        lessons.add(lesson);
+        lessonUnits.add(unit);
+      }
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         elevation: 2,
@@ -261,7 +216,6 @@ class _HomePageViewState extends State<HomePageView> {
                   ],
                 ),
               ),
-
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -294,104 +248,139 @@ class _HomePageViewState extends State<HomePageView> {
           ),
         ),
       ),
+      body: lessonProvider.isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.deepPurple),
+            )
+          : lessonProvider.errorMessage != null
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      lessonProvider.errorMessage!,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                      onPressed: lessonProvider.refresh,
+                      child: const Text('Tentar novamente'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : lessons.isEmpty
+          ? const Center(child: Text('Nenhuma aula disponível no momento.'))
+          : ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+              itemCount: lessons.length,
+              itemBuilder: (context, index) {
+                final lesson = lessons[index];
+                final unit = lessonUnits[index];
+                final blocked = !lessonProvider.isLessonUnlocked(unit, lesson);
+                final completed = lessonProvider.completedLessonIds.contains(
+                  lesson.id,
+                );
+                final position = switch (index % 4) {
+                  1 => 1,
+                  3 => -1,
+                  _ => 0,
+                };
+                final alignment = switch (position) {
+                  -1 => Alignment.centerLeft,
+                  1 => Alignment.centerRight,
+                  _ => Alignment.center,
+                };
 
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-        itemCount: _exercises.length,
-        itemBuilder: (context, index) {
-          final item = _exercises[index];
-          final bool blocked = item['bloqueado'];
-          final bool completed = item['concluido'];
-          final int position = item['posicao'];
-
-          Alignment alignment = Alignment.center;
-          if (position == -1) alignment = Alignment.centerLeft;
-          if (position == 1) alignment = Alignment.centerRight;
-
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 32.0),
-            child: Align(
-              alignment: alignment,
-              child: MouseRegion(
-                cursor: blocked
-                    ? SystemMouseCursors.basic
-                    : SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: blocked
-                      ? null
-                      : () => _showExerciseDialog(context, item),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 76,
-                        height: 76,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: blocked ? Colors.grey.shade300 : Colors.orange,
-                          border: Border.all(
-                            color: blocked
-                                ? Colors.grey.shade400
-                                : (completed
-                                      ? Colors.green.shade700
-                                      : Colors.orange.shade800),
-                            width: 4,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                                  (blocked
-                                          ? Colors.grey
-                                          : (completed
-                                                ? Colors.green
-                                                : Colors.orange))
-                                      .withValues(alpha: 0.35),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 32.0),
+                  child: Align(
+                    alignment: alignment,
+                    child: MouseRegion(
+                      cursor: blocked
+                          ? SystemMouseCursors.basic
+                          : SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: blocked
+                            ? null
+                            : () => _showExerciseDialog(context, lesson),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: 76,
+                              height: 76,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: blocked
+                                    ? Colors.grey.shade300
+                                    : Colors.orange,
+                                border: Border.all(
+                                  color: blocked
+                                      ? Colors.grey.shade400
+                                      : (completed
+                                            ? Colors.green.shade700
+                                            : Colors.orange.shade800),
+                                  width: 4,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        (blocked
+                                                ? Colors.grey
+                                                : (completed
+                                                      ? Colors.green
+                                                      : Colors.orange))
+                                            .withValues(alpha: 0.35),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                blocked
+                                    ? Icons.lock_rounded
+                                    : (completed
+                                          ? Icons.check_rounded
+                                          : Icons.play_arrow_rounded),
+                                color: Colors.white,
+                                size: 38,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade200),
+                              ),
+                              child: Text(
+                                lesson.tituloAula,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: blocked
+                                      ? Colors.grey
+                                      : Colors.deepPurple,
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                        child: Icon(
-                          blocked
-                              ? Icons.lock_rounded
-                              : (completed
-                                    ? Icons.check_rounded
-                                    : Icons.play_arrow_rounded),
-                          color: Colors.white,
-                          size: 38,
-                        ),
                       ),
-
-                      const SizedBox(height: 8),
-
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: Text(
-                          item['titulo'],
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: blocked ? Colors.grey : Colors.deepPurple,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }
