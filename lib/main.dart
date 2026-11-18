@@ -17,7 +17,9 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(DevicePreview(enabled: true, builder: ((context) => const MainApp())));
+  runApp(
+    DevicePreview(enabled: false, builder: ((context) => const MainApp())),
+  );
 }
 
 class MainApp extends StatelessWidget {
